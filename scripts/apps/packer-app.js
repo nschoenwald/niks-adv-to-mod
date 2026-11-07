@@ -1,12 +1,16 @@
 import { ASSET_KINDS, MODULE_ID, SETTINGS } from "../constants.js";
 import AdventureScan from "../scan.js";
-import { exportModule } from "../export.js";
+import { exportModule, planAssets } from "../export.js";
 import { openSink } from "../zip.js";
+import { MAX_ENTRIES, WORLD, canPackIn, packInLinks } from "../link-pack.js";
 
 const { ApplicationV2, HandlebarsApplicationMixin, DialogV2 } = foundry.applications.api;
 
 /** Most document labels listed in a tooltip. */
 const MAX_TOOLTIP_DOCS = 12;
+
+/** Size from which an export that is held in memory (no direct saving) asks first. */
+const LARGE_IN_MEMORY = 1024 ** 3;
 
 /**
  * The export window: module details, the asset report, broken links and dependencies.
@@ -53,7 +57,8 @@ export default class PackerApp extends HandlebarsApplicationMixin(ApplicationV2)
       closeOnSubmit: false
     },
     actions: {
-      toggleGroup: PackerApp.#onToggleGroup
+      toggleGroup: PackerApp.#onToggleGroup,
+      cancelExport: PackerApp.#onCancelExport
     }
   };
 
@@ -105,12 +110,31 @@ export default class PackerApp extends HandlebarsApplicationMixin(ApplicationV2)
   /** An export is running. */
   #exporting = false;
 
+  /** @type {AbortController|null} Cancels the running export. */
+  #abort = null;
+
   /** @type {Map<string, string>} Dependency level chosen per module. */
   #levels = new Map();
 
+  /** @type {Set<string>} Modules whose dependency level the GM chose by hand. Those are never changed automatically. */
+  #manualLevels = new Set();
+
+  /** The adventure as loaded, and its scan. Packing in linked entries starts from these each time. */
+  #baseSource = null;
+  #baseScan = null;
+
+  /** @type {Set<string>} Compendiums whose linked entries are packed into the adventure. */
+  #packIn = new Set();
+
+  /** Add linked world documents that are not part of the adventure. On by default: it is the GM's own content. */
+  #packWorld = true;
+
+  /** @type {import("../link-pack.js").PackInResult|null} */
+  #packResult = null;
+
   /* -------------------------------------------- */
 
-  /** Load and scan the adventure, then check its files. */
+  /** Load and scan the adventure, then pack in linked entries and check its files. */
   async #load() {
     const times = [performance.now()];
     try {
@@ -120,30 +144,79 @@ export default class PackerApp extends HandlebarsApplicationMixin(ApplicationV2)
       Object.assign(this.adventure, { name: source.name, img: source.img });
       times.push(performance.now());
 
-      this.scan = new AdventureScan(source, { pack });
+      this.#baseSource = source;
+      this.#baseScan = new AdventureScan(source, { pack });
       this.#setStage("scanning");
-      await this.scan.collect((done, total) => this.#setProgress(done, total));
-      times.push(performance.now());
-      this.#levels = new Map([...this.scan.dependencies.values()].map(dep => [dep.id, defaultLevel(dep)]));
-
-      this.#setStage("checking", this.scan.assets.size);
-      await this.#firstRender;
-      this.#fillDescription(source);
-      await this.render({ parts: ["header", "assets", "links", "footer"] });
-      await this.scan.check((done, total) => this.#setProgress(done, total));
+      await this.#baseScan.collect((done, total) => this.#setProgress(done, total));
       times.push(performance.now());
       console.debug(`${MODULE_ID} | ${source.name}: loaded in ${Math.round(times[1] - times[0])} ms, scanned in `
-        + `${Math.round(times[2] - times[1])} ms, ${this.scan.assets.size} files checked in `
-        + `${Math.round(times[3] - times[2])} ms`);
+        + `${Math.round(times[2] - times[1])} ms`);
+
+      // World compendiums are the GM's own content, and other GMs don't have them: pack them in by default.
+      for ( const collection of this.#baseScan.compendiumLinks.keys() ) {
+        const linked = game.packs.get(collection);
+        if ( (linked?.metadata.packageType === "world") && canPackIn(linked) ) this.#packIn.add(collection);
+      }
+      await this.#firstRender;
+      this.#fillDescription(source);
+    } catch(err) {
+      this.#fail(err);
+      return;
+    }
+    await this.#rebuild();
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Build the adventure to export: pack in the linked entries of the chosen compendiums, scan the result, keep the
+   * GM's choices from the previous scan, and check the files that are new.
+   */
+  async #rebuild() {
+    const previous = this.scan;
+    try {
+      let scan = this.#baseScan;
+      this.#packResult = null;
+      if ( this.#packIn.size || this.#packWorld ) {
+        this.#setStage("packing");
+        this.#packResult = await packInLinks(this.#baseSource, this.#packIn, {
+          world: this.#packWorld,
+          worldFolder: game.i18n.localize("NATM.PackIn.WorldFolder"),
+          onProgress: (done, total) => this.#setProgress(done, total)
+        });
+        scan = new AdventureScan(this.#packResult.source, { pack: this.adventure.pack });
+        this.#setStage("scanning");
+        await scan.collect((done, total) => this.#setProgress(done, total));
+      }
+      if ( previous && (previous !== scan) ) scan.adopt(previous);
+      this.scan = scan;
+      this.#levels = new Map([...scan.dependencies.values()].map(dep => {
+        const manual = this.#manualLevels.has(dep.id) && this.#levels.has(dep.id);
+        return [dep.id, manual ? this.#levels.get(dep.id) : autoLevel(scan, dep)];
+      }));
+
+      this.#setStage("checking");
+      await this.render({ parts: ["header", "assets", "links", "footer"] });
+      await scan.check((done, total) => this.#setProgress(done, total));
       this.#setStage("ready");
     } catch(err) {
-      console.error(`${MODULE_ID} | Loading the adventure failed`, err);
-      this.#error = err.message;
-      this.#setStage("error");
-      ui.notifications.error("NATM.Errors.LoadFailed", { format: { error: err.message } });
+      this.#fail(err);
+      return;
     }
-    await this.#firstRender;
     if ( this.rendered ) this.render({ parts: ["header", "assets", "links", "footer"] });
+  }
+
+  /* -------------------------------------------- */
+
+  /** @param {Error} err */
+  #fail(err) {
+    console.error(`${MODULE_ID} | Loading the adventure failed`, err);
+    this.#error = err.message;
+    this.#setStage("error");
+    ui.notifications.error("NATM.Errors.LoadFailed", { format: { error: err.message } });
+    this.#firstRender.then(() => {
+      if ( this.rendered ) this.render({ parts: ["header", "assets", "links", "footer"] });
+    });
   }
 
   /* -------------------------------------------- */
@@ -174,6 +247,7 @@ export default class PackerApp extends HandlebarsApplicationMixin(ApplicationV2)
     switch ( this.#stage ) {
       case "loading": return game.i18n.localize("NATM.App.Loading");
       case "scanning": return game.i18n.format("NATM.App.Scanning", { done, total });
+      case "packing": return game.i18n.format("NATM.App.Packing", { done, total });
       case "checking": return game.i18n.format("NATM.Assets.Checking", { done, total });
       case "error": return game.i18n.format("NATM.Errors.LoadFailed", { error: this.#error });
     }
@@ -220,10 +294,9 @@ export default class PackerApp extends HandlebarsApplicationMixin(ApplicationV2)
       case "assets": return this.#prepareAssets(context);
       case "links": return this.#prepareLinks(context);
       case "footer":
-        context.buttons = [{
-          type: "submit", icon: "fa-solid fa-file-zipper", label: "NATM.App.Export",
-          disabled: !this.#checked || this.#exporting
-        }];
+        context.buttons = this.#exporting
+          ? [{ type: "button", action: "cancelExport", icon: "fa-solid fa-ban", label: "NATM.App.Cancel" }]
+          : [{ type: "submit", icon: "fa-solid fa-file-zipper", label: "NATM.App.Export", disabled: !this.#checked }];
         return context;
     }
     return context;
@@ -351,16 +424,88 @@ export default class PackerApp extends HandlebarsApplicationMixin(ApplicationV2)
       .map(dep => ({
         id: dep.id,
         title: dep.title,
-        installed: dep.installed,
+        // Inactive modules matter too: their compendiums can't be read, so their links can't be checked or packed in.
+        warning: dep.active ? "" : `NATM.Dependencies.${dep.installed ? "Inactive" : "NotInstalled"}`,
         reasons: [...dep.reasons].map(r => game.i18n.localize(`NATM.Dependencies.Reasons.${r}`)).join(", "),
-        level: this.#levels.get(dep.id)
+        level: this.#levels.get(dep.id),
+        allCopied: dep.reasons.has("assets") && allFilesCopied(this.scan, dep.id)
       }));
+    context.compendiums = this.#prepareCompendiums(context.busy);
+    context.packLimited = this.#packResult?.limited ? game.i18n.format("NATM.PackIn.Limited", { max: MAX_ENTRIES }) : "";
     context.levelChoices = {
       requires: "NATM.Dependencies.Levels.requires",
       recommends: "NATM.Dependencies.Levels.recommends",
       none: "NATM.Dependencies.Levels.none"
     };
     return context;
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * The compendiums the adventure links to: those of the loaded adventure, and those only linked from packed-in
+   * entries.
+   * @param {boolean} busy
+   * @returns {object[]}
+   */
+  #prepareCompendiums(busy) {
+    const linked = new Map();
+    for ( const scan of [this.#baseScan, this.scan] ) {
+      for ( const [collection, ids] of scan?.compendiumLinks ?? [] ) {
+        if ( !linked.has(collection) ) linked.set(collection, new Set());
+        for ( const id of ids ) linked.get(collection).add(id);
+      }
+    }
+    const order = { world: 0, module: 1, system: 2 };
+    const rows = [];
+    // World documents the adventure links to but doesn't contain
+    const missing = [...this.#baseScan?.issues.values() ?? []].filter(i => i.type === "missingDocument").length;
+    const worldStat = this.#packResult?.stats.get(WORLD);
+    if ( missing || worldStat?.packed ) {
+      let note = "";
+      if ( worldStat ) {
+        note = game.i18n.format("NATM.PackIn.Packed", { count: worldStat.packed });
+        if ( worldStat.missing ) note += ` ${game.i18n.format("NATM.PackIn.Missing", { count: worldStat.missing })}`;
+      }
+      rows.push({
+        collection: WORLD,
+        title: game.i18n.localize("NATM.PackIn.WorldDocuments"),
+        owner: game.world.title,
+        linked: game.i18n.format("NATM.PackIn.Linked", { count: missing }),
+        checked: this.#packWorld,
+        disabled: busy,
+        note,
+        sort: -1
+      });
+    }
+    return rows.concat([...linked].map(([collection, ids]) => {
+      const pack = game.packs.get(collection);
+      const { packageType, packageName } = pack?.metadata ?? {};
+      let owner = game.i18n.localize("NATM.PackIn.Unavailable");
+      if ( packageType === "world" ) owner = game.i18n.localize("NATM.PackIn.World");
+      else if ( packageType === "module" ) owner = game.modules.get(packageName)?.title ?? packageName;
+      else if ( packageType === "system" ) owner = game.system.title;
+      const stat = this.#packResult?.stats.get(collection);
+      const packable = canPackIn(pack) && (collection !== this.adventure.pack);
+      let note = "";
+      if ( !pack ) note = game.i18n.localize("NATM.PackIn.NotAvailable");
+      else if ( packageType === "system" ) note = game.i18n.localize("NATM.PackIn.SystemPack");
+      else if ( !packable ) note = game.i18n.localize("NATM.PackIn.NotPackable");
+      else if ( stat ) {
+        note = game.i18n.format("NATM.PackIn.Packed", { count: stat.packed });
+        if ( stat.missing ) note += ` ${game.i18n.format("NATM.PackIn.Missing", { count: stat.missing })}`;
+      }
+      return {
+        collection,
+        title: pack?.title ?? collection,
+        owner,
+        linked: game.i18n.format("NATM.PackIn.Linked", { count: ids.size }),
+        checked: this.#packIn.has(collection),
+        disabled: busy || !packable,
+        note,
+        sort: order[packageType] ?? 3
+      };
+    })).sort((a, b) => (a.sort - b.sort) || a.title.localeCompare(b.title, game.i18n.lang));
   }
 
   /* -------------------------------------------- */
@@ -379,12 +524,48 @@ export default class PackerApp extends HandlebarsApplicationMixin(ApplicationV2)
     super._onChangeForm(formConfig, event);
     const target = event.target;
     const name = target?.name ?? "";
+    if ( this.#exporting ) return; // The tabs are inert while exporting; this is a safety net
     if ( name.startsWith("include.") && this.scan ) {
       const entry = this.scan.entries[Number(name.slice(8))];
       if ( entry ) entry.include = target.checked;
       this.render({ parts: ["header"] });
+      if ( entry?.kind === "module" ) this.#syncAssetDependencies([entry.packageId]);
     }
-    else if ( name.startsWith("level.") ) this.#levels.set(name.slice(6), target.value);
+    else if ( name.startsWith("packIn.") ) {
+      if ( !["ready", "error"].includes(this.#stage) || !this.#baseScan ) {
+        target.checked = !target.checked; // Busy: the checkboxes are disabled again on the next render
+        return;
+      }
+      const collection = name.slice(7);
+      if ( collection === WORLD ) this.#packWorld = target.checked;
+      else if ( target.checked ) this.#packIn.add(collection);
+      else this.#packIn.delete(collection);
+      this.#rebuild();
+    }
+    else if ( name.startsWith("level.") ) {
+      const id = name.slice(6);
+      this.#levels.set(id, target.value);
+      this.#manualLevels.add(id);
+    }
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * A module the adventure only needs for its files is not listed once all of them are copied, and becomes required
+   * again when one is unticked. Modules the GM set by hand, and modules also needed for compendium links or module
+   * data, are left alone.
+   * @param {Iterable<string>} moduleIds
+   */
+  #syncAssetDependencies(moduleIds) {
+    for ( const id of new Set(moduleIds) ) {
+      const dep = this.scan.dependencies.get(id);
+      if ( !dep || this.#manualLevels.has(id) ) continue;
+      this.#levels.set(id, autoLevel(this.scan, dep));
+    }
+    // The links part holds no other inputs: its selects are rendered from #levels, and the "all files copied" notes
+    // change with the checkboxes.
+    this.render({ parts: ["links"] });
   }
 
   /* -------------------------------------------- */
@@ -396,6 +577,7 @@ export default class PackerApp extends HandlebarsApplicationMixin(ApplicationV2)
    * @param {HTMLElement} target
    */
   static #onToggleGroup(event, target) {
+    if ( this.#exporting ) return;
     const { kind, value } = target.dataset;
     const include = value === "true";
     for ( const entry of this.scan?.entries ?? [] ) {
@@ -405,6 +587,32 @@ export default class PackerApp extends HandlebarsApplicationMixin(ApplicationV2)
       if ( box && !box.disabled ) box.checked = include;
     }
     this.render({ parts: ["header"] });
+    if ( kind === "module" ) {
+      this.#syncAssetDependencies(this.scan.entries.filter(e => e.kind === "module").map(e => e.packageId));
+    }
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Cancel the running export.
+   * @this {PackerApp}
+   */
+  static #onCancelExport() {
+    this.#abort?.abort();
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Lock the tabs while an export runs, so nothing the export reads changes under it, and swap Export for Cancel.
+   * @param {boolean} exporting
+   */
+  #setExporting(exporting) {
+    this.#exporting = exporting;
+    for ( const tab of this.element?.querySelectorAll(".tab[data-group='sheet']") ?? [] ) tab.inert = exporting;
+    this.element?.classList.toggle("natm-exporting", exporting);
+    this.render({ parts: ["footer"] });
   }
 
   /* -------------------------------------------- */
@@ -444,26 +652,47 @@ export default class PackerApp extends HandlebarsApplicationMixin(ApplicationV2)
       throw err;
     }
 
+    // Without direct saving, the browser holds the whole ZIP in memory until the download starts.
+    if ( !sink.streamed ) {
+      const bytes = planAssets(this.scan, options.id).plan.reduce((n, p) => n + (p.entry.size ?? 0), 0);
+      if ( bytes > LARGE_IN_MEMORY ) {
+        const proceed = await DialogV2.confirm({
+          window: { title: "NATM.Warnings.LargeTitle", icon: "fa-solid fa-memory" },
+          content: `<p>${game.i18n.format("NATM.Warnings.LargeInMemory", { size: formatBytes(bytes) })}</p>`,
+          rejectClose: false
+        });
+        if ( !proceed ) {
+          await sink.abort?.();
+          return;
+        }
+      }
+    }
+
     if ( game.modules.has(options.id) ) {
       ui.notifications.warn("NATM.Warnings.IdInstalled", { format: { id: options.id } });
     }
-    this.#exporting = true;
-    this.render({ parts: ["footer"] });
+    const scan = this.scan;
+    this.#abort = new AbortController();
+    this.#setExporting(true);
     const progress = ui.notifications.info("NATM.Export.Started", { localize: true, progress: true });
     let result;
     try {
-      result = await exportModule(this.scan, options, sink, (done, total) => {
+      result = await exportModule(scan, options, sink, (done, total) => {
         progress.update({ pct: total ? done / total : 1,
           message: game.i18n.format("NATM.Export.Progress", { done, total }) });
-      });
+      }, { signal: this.#abort.signal });
       progress.update({ pct: 1, message: game.i18n.localize("NATM.Export.Finished") });
     } catch(err) {
       progress.remove();
       await sink.abort?.().catch(() => {});
+      if ( err?.name === "AbortError" ) {
+        ui.notifications.info("NATM.Export.Cancelled", { localize: true });
+        return;
+      }
       throw err;
     } finally {
-      this.#exporting = false;
-      this.render({ parts: ["footer"] });
+      this.#abort = null;
+      this.#setExporting(false);
     }
 
     await game.settings.set(MODULE_ID, SETTINGS.author, options.author);
@@ -491,6 +720,29 @@ const STATUS_ICONS = {
  */
 function defaultLevel(dep) {
   return (dep.reasons.has("assets") || dep.reasons.has("compendium")) ? "requires" : "recommends";
+}
+
+/**
+ * The level a dependency gets automatically: not listed if the adventure only needs the module for its files and all
+ * of them are copied, otherwise the default.
+ * @param {AdventureScan} scan
+ * @param {{id: string, reasons: Set<string>}} dep
+ * @returns {"requires"|"recommends"|"none"}
+ */
+function autoLevel(scan, dep) {
+  const onlyFiles = (dep.reasons.size === 1) && dep.reasons.has("assets");
+  return (onlyFiles && allFilesCopied(scan, dep.id)) ? "none" : defaultLevel(dep);
+}
+
+/**
+ * Whether every file of a module that exists here is ticked for copying.
+ * @param {AdventureScan} scan
+ * @param {string} moduleId
+ * @returns {boolean}
+ */
+function allFilesCopied(scan, moduleId) {
+  const files = scan.entries.filter(e => (e.kind === "module") && (e.packageId === moduleId) && (e.status !== "missing"));
+  return files.length > 0 && files.every(e => e.include);
 }
 
 /**

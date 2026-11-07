@@ -1,18 +1,38 @@
 <section class="tab {{tab.cssClass}}" data-group="sheet" data-tab="links">
   {{#if scanned}}
+  {{#if compendiums.length}}
+  <fieldset class="natm-packin">
+    <legend>{{localize "NATM.PackIn.Label"}}</legend>
+    <p class="hint">{{localize "NATM.PackIn.Hint"}}</p>
+    {{#if packLimited}}<p class="notification warning">{{packLimited}}</p>{{/if}}
+    <ul class="natm-compendiums">
+      {{#each compendiums as |pack|}}
+      <li>
+        <input type="checkbox" name="packIn.{{pack.collection}}" {{checked pack.checked}} {{disabled pack.disabled}}
+               aria-label="{{localize "NATM.PackIn.Toggle"}}" data-tooltip="NATM.PackIn.Toggle">
+        <span class="natm-pack-title">{{pack.title}}</span>
+        <span class="natm-tag">{{pack.owner}}</span>
+        <span class="natm-size">{{pack.linked}}</span>
+        {{#if pack.note}}<span class="hint natm-pack-note">{{pack.note}}</span>{{/if}}
+      </li>
+      {{/each}}
+    </ul>
+  </fieldset>
+  {{/if}}
+
   <fieldset>
     <legend>{{localize "NATM.Dependencies.Label"}}</legend>
     <p class="hint">{{localize "NATM.Dependencies.Hint"}}</p>
     {{#if dependencies.length}}
     {{#each dependencies as |dep|}}
     <div class="form-group">
-      <label>{{dep.title}}{{#unless dep.installed}} <i class="fa-solid fa-circle-exclamation" data-tooltip="NATM.Dependencies.NotInstalled"></i>{{/unless}}</label>
+      <label>{{dep.title}}{{#if dep.warning}} <i class="fa-solid fa-circle-exclamation" data-tooltip="{{dep.warning}}" aria-label="{{localize dep.warning}}"></i>{{/if}}</label>
       <div class="form-fields">
         <select name="level.{{dep.id}}">
           {{selectOptions @root.levelChoices selected=dep.level localize=true}}
         </select>
       </div>
-      <p class="hint"><code>{{dep.id}}</code> · {{dep.reasons}}</p>
+      <p class="hint"><code>{{dep.id}}</code> · {{dep.reasons}}{{#if dep.allCopied}} · {{localize "NATM.Dependencies.AllCopied"}}{{/if}}</p>
     </div>
     {{/each}}
     {{else}}

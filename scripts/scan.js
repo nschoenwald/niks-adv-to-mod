@@ -205,10 +205,12 @@ export default class AdventureScan {
     this.assets = new Map();
     /** @type {Map<string, {type: string, uuid: string, name: string, docs: Set<string>}>} */
     this.issues = new Map();
-    /** @type {Map<string, {id: string, title: string, installed: boolean, reasons: Set<string>}>} */
+    /** @type {Map<string, {id: string, title: string, installed: boolean, active: boolean, reasons: Set<string>}>} */
     this.dependencies = new Map();
     /** Newest core and system versions the documents were saved with. */
     this.coreVersion = null;
+    /** @type {Map<string, Set<string>>} Ids of the compendium entries the adventure links to, by compendium. */
+    this.compendiumLinks = new Map();
     this.systemVersion = null;
   }
 
@@ -388,6 +390,12 @@ export default class AdventureScan {
     const parts = uuid.split(".");
     if ( parts[0] === "Compendium" ) {
       const collection = `${parts[1]}.${parts[2]}`;
+      // Compendium.<package>.<pack>.<Type>.<id>…, or the old form without the type
+      const id = ID.test(parts[4] ?? "") ? parts[4] : parts[3];
+      if ( ID.test(id ?? "") ) {
+        if ( !this.compendiumLinks.has(collection) ) this.compendiumLinks.set(collection, new Set());
+        this.compendiumLinks.get(collection).add(id);
+      }
       if ( collection === this.pack ) return this.#addIssue("sourcePack", uuid);
       const pack = game.packs.get(collection);
       if ( !pack ) {
@@ -450,7 +458,7 @@ export default class AdventureScan {
     let dep = this.dependencies.get(id);
     if ( !dep ) {
       const module = game.modules.get(id);
-      dep = { id, title: module?.title ?? id, installed: !!module, reasons: new Set() };
+      dep = { id, title: module?.title ?? id, installed: !!module, active: !!module?.active, reasons: new Set() };
       this.dependencies.set(id, dep);
     }
     dep.reasons.add(reason);
@@ -465,12 +473,27 @@ export default class AdventureScan {
    * @param {function(number, number): void} [onProgress]
    */
   async check(onProgress) {
-    const entries = this.entries;
+    const entries = this.entries.filter(e => e.status === "pending");
     let done = 0;
     await runPool(entries, CONCURRENCY, async entry => {
       await this.#checkEntry(entry);
       onProgress?.(++done, entries.length);
     });
+  }
+
+  /**
+   * Take over the GM's copy choices and the check results of an earlier scan, for files both scans found.
+   * Only files that are new in this scan are checked again.
+   * @param {AdventureScan} previous
+   */
+  adopt(previous) {
+    for ( const entry of this.assets.values() ) {
+      const old = previous.assets.get(entry.key);
+      if ( !old ) continue;
+      entry.include = old.include;
+      if ( old.status === "pending" ) continue;
+      Object.assign(entry, { status: old.status, size: old.size, files: old.files, error: old.error });
+    }
   }
 
   /* -------------------------------------------- */

@@ -7,7 +7,9 @@
       "Export": "Export ZIP",
       "Loading": "Loading the adventure…",
       "Scanning": "Scanning documents: {done} of {total}",
-      "Summary": "{assets} files used, {copied} will be copied ({size}). {issues} broken links."
+      "Packing": "Packing in linked entries: {done} of {total} compendiums",
+      "Summary": "{assets} files used, {copied} will be copied ({size}). {issues} broken links.",
+      "Cancel": "Cancel export"
     },
     "Tabs": {
       "details": "Module",
@@ -86,11 +88,29 @@
       "missing": "Not found: the path stays unchanged",
       "unchecked": "Could not be checked"
     },
+    "PackIn": {
+      "Label": "Linked content",
+      "Hint": "The adventure links to these documents and compendium entries. Tick a source to pack its linked entries into the adventure: they are imported with it, links point to the imported copies, and the source is no longer needed for them. Entries those entries link to in ticked sources are packed in too, however deep the links go. World documents and world compendiums are ticked by default. Only pack in content you are allowed to share.",
+      "Toggle": "Pack linked entries into the adventure",
+      "World": "World",
+      "Unavailable": "Not available",
+      "NotAvailable": "This compendium is not available in this world.",
+      "NotPackable": "Entries of this type can't be part of an adventure.",
+      "SystemPack": "Part of the game system (for example SRD content). Never packed in: every GM using the module has it, so these links keep working.",
+      "Packed": "{count} entries packed in.",
+      "Missing": "{count} linked entries were not found.",
+      "Linked": "{count} linked",
+      "Limited": "Packing in stopped at {max} entries. Some links still point into the compendiums.",
+      "WorldDocuments": "Documents of this world",
+      "WorldFolder": "Linked documents"
+    },
     "Dependencies": {
       "Label": "Module dependencies",
-      "Hint": "Modules the adventure takes files or compendium content from are required by default. Modules that only stored data on its documents are recommended.",
+      "Hint": "Modules the adventure takes files or compendium content from are required by default. Modules that only stored data on its documents are recommended. A module the adventure only needs for its files is not listed once you copy all of them. What you choose here by hand is kept.",
       "None": "The adventure needs no other modules.",
-      "NotInstalled": "Not active in this world",
+      "NotInstalled": "Not installed on this server",
+      "Inactive": "Installed, but not active in this world. Activate it to check and pack in its compendium links.",
+      "AllCopied": "all files copied into the module",
       "Reasons": {
         "assets": "files",
         "compendium": "compendium links",
@@ -125,7 +145,8 @@
     "Export": {
       "Started": "Packing the adventure…",
       "Progress": "Packing files: {done} of {total}",
-      "Finished": "Adventure packed."
+      "Finished": "Adventure packed.",
+      "Cancelled": "Export cancelled."
     },
     "Result": {
       "Title": "Module exported",
@@ -145,7 +166,9 @@
       "LoadFailed": "The adventure could not be loaded: {error}"
     },
     "Warnings": {
-      "IdInstalled": "A module with the ID \"{id}\" is installed here. Installing the ZIP on this server replaces it."
+      "IdInstalled": "A module with the ID \"{id}\" is installed here. Installing the ZIP on this server replaces it.",
+      "LargeTitle": "Large export",
+      "LargeInMemory": "The files to copy add up to about {size}. This browser can't save directly to disk, so it keeps the whole ZIP in memory until the download starts, which can crash the tab. Chrome, Edge and the Foundry app save directly. Export anyway?"
     }
   }
 }

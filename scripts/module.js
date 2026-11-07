@@ -3,6 +3,7 @@ import PackerApp from "./apps/packer-app.js";
 import AdventureScan from "./scan.js";
 import { exportModule, planAssets } from "./export.js";
 import { openSink } from "./zip.js";
+import { packInLinks } from "./link-pack.js";
 
 Hooks.once("init", () => {
   // Remembered between exports, per user.
@@ -15,6 +16,7 @@ Hooks.once("init", () => {
   const api = {
     open,
     AdventureScan,
+    packInLinks,
     planAssets,
     exportModule,
     openSink

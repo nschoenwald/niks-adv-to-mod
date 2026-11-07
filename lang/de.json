@@ -7,7 +7,9 @@
       "Export": "ZIP exportieren",
       "Loading": "Abenteuer wird geladen…",
       "Scanning": "Dokumente werden durchsucht: {done} von {total}",
-      "Summary": "{assets} Dateien verwendet, {copied} werden kopiert ({size}). {issues} defekte Verknüpfungen."
+      "Packing": "Verknüpfte Einträge werden eingepackt: {done} von {total} Kompendien",
+      "Summary": "{assets} Dateien verwendet, {copied} werden kopiert ({size}). {issues} defekte Verknüpfungen.",
+      "Cancel": "Export abbrechen"
     },
     "Tabs": {
       "details": "Modul",
@@ -86,11 +88,29 @@
       "missing": "Nicht gefunden: Der Pfad bleibt unverändert",
       "unchecked": "Konnte nicht geprüft werden"
     },
+    "PackIn": {
+      "Label": "Verknüpfte Inhalte",
+      "Hint": "Das Abenteuer verknüpft diese Dokumente und Kompendiumeinträge. Hake eine Quelle an, um ihre verknüpften Einträge ins Abenteuer zu packen: Sie werden mit ihm importiert, die Verknüpfungen zeigen auf die importierten Kopien, und die Quelle wird dafür nicht mehr gebraucht. Einträge, die diese Einträge in angehakten Quellen verknüpfen, werden ebenfalls eingepackt, egal wie tief die Verknüpfungen gehen. Weltdokumente und Weltkompendien sind standardmäßig angehakt. Pack nur Inhalte ein, die du weitergeben darfst.",
+      "Toggle": "Verknüpfte Einträge ins Abenteuer packen",
+      "World": "Welt",
+      "Unavailable": "Nicht verfügbar",
+      "NotAvailable": "Dieses Kompendium ist in dieser Welt nicht verfügbar.",
+      "NotPackable": "Einträge dieser Art können nicht Teil eines Abenteuers sein.",
+      "SystemPack": "Teil des Spielsystems (zum Beispiel SRD-Inhalte). Wird nie eingepackt: Alle SL, die das Modul nutzen, haben es, daher funktionieren diese Verknüpfungen weiter.",
+      "Packed": "{count} Einträge eingepackt.",
+      "Missing": "{count} verknüpfte Einträge wurden nicht gefunden.",
+      "Linked": "{count} verknüpft",
+      "Limited": "Das Einpacken wurde bei {max} Einträgen beendet. Einige Verknüpfungen zeigen weiterhin in die Kompendien.",
+      "WorldDocuments": "Dokumente dieser Welt",
+      "WorldFolder": "Verknüpfte Dokumente"
+    },
     "Dependencies": {
       "Label": "Modulabhängigkeiten",
-      "Hint": "Module, aus denen das Abenteuer Dateien oder Kompendiuminhalte verwendet, sind standardmäßig erforderlich. Module, die nur Daten an seinen Dokumenten gespeichert haben, werden empfohlen.",
+      "Hint": "Module, aus denen das Abenteuer Dateien oder Kompendiuminhalte verwendet, sind standardmäßig erforderlich. Module, die nur Daten an seinen Dokumenten gespeichert haben, werden empfohlen. Ein Modul, das das Abenteuer nur für seine Dateien braucht, wird nicht mehr aufgeführt, sobald du alle diese Dateien kopierst. Was du hier von Hand auswählst, bleibt erhalten.",
       "None": "Das Abenteuer braucht keine anderen Module.",
-      "NotInstalled": "In dieser Welt nicht aktiv",
+      "NotInstalled": "Auf diesem Server nicht installiert",
+      "Inactive": "Installiert, aber in dieser Welt nicht aktiv. Aktiviere es, um seine Kompendium-Verknüpfungen zu prüfen und einzupacken.",
+      "AllCopied": "alle Dateien werden ins Modul kopiert",
       "Reasons": {
         "assets": "Dateien",
         "compendium": "Kompendium-Verknüpfungen",
@@ -125,7 +145,8 @@
     "Export": {
       "Started": "Abenteuer wird gepackt…",
       "Progress": "Dateien werden gepackt: {done} von {total}",
-      "Finished": "Abenteuer gepackt."
+      "Finished": "Abenteuer gepackt.",
+      "Cancelled": "Export abgebrochen."
     },
     "Result": {
       "Title": "Modul exportiert",
@@ -145,7 +166,9 @@
       "LoadFailed": "Das Abenteuer konnte nicht geladen werden: {error}"
     },
     "Warnings": {
-      "IdInstalled": "Hier ist ein Modul mit der ID „{id}“ installiert. Wird das ZIP auf diesem Server installiert, ersetzt es dieses Modul."
+      "IdInstalled": "Hier ist ein Modul mit der ID „{id}“ installiert. Wird das ZIP auf diesem Server installiert, ersetzt es dieses Modul.",
+      "LargeTitle": "Großer Export",
+      "LargeInMemory": "Die zu kopierenden Dateien sind zusammen etwa {size} groß. Dieser Browser kann nicht direkt auf die Festplatte speichern und hält daher das ganze ZIP im Arbeitsspeicher, bis der Download beginnt. Das kann den Tab abstürzen lassen. Chrome, Edge und die Foundry-App speichern direkt. Trotzdem exportieren?"
     }
   }
 }

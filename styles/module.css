@@ -26,6 +26,11 @@
   flex: 1;
 }
 
+/* Locked while exporting */
+.niks-adv-to-mod.natm-exporting .tab[data-group="sheet"] {
+  opacity: 0.6;
+}
+
 /* Header */
 .niks-adv-to-mod .natm-header {
   display: flex;
@@ -168,6 +173,43 @@
 
 .niks-adv-to-mod .natm-issues .hint {
   display: block;
+}
+
+/* Compendium content to pack in */
+.niks-adv-to-mod .natm-compendiums {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.niks-adv-to-mod .natm-compendiums li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0;
+  border-bottom: 1px solid var(--natm-row-border);
+  font-size: var(--font-size-12, 12px);
+}
+
+.niks-adv-to-mod .natm-compendiums li:last-child {
+  border-bottom: none;
+}
+
+.niks-adv-to-mod .natm-compendiums input[type="checkbox"] {
+  flex: none;
+  margin: 0;
+}
+
+.niks-adv-to-mod .natm-pack-title {
+  flex: 1;
+  min-width: 8rem;
+}
+
+.niks-adv-to-mod .natm-pack-note {
+  flex-basis: 100%;
+  margin: 0;
+  padding-left: calc(var(--checkbox-size, 1rem) + 0.4rem);
 }
 
 /* Result dialog */

@@ -84,8 +84,8 @@ function uniquePath(path, used) {
  * @param {string} src  Normalized path or URL
  * @returns {Promise<Uint8Array>}
  */
-async function download(src) {
-  const response = await fetch(toUrl(src));
+async function download(src, signal) {
+  const response = await fetch(toUrl(src), { signal });
   if ( !response.ok ) throw new Error(`${response.status} ${response.statusText}`.trim());
   return new Uint8Array(await response.arrayBuffer());
 }
@@ -98,9 +98,11 @@ async function download(src) {
  * @param {ExportOptions} options
  * @param {import("./zip.js").ZipSink & {streamed: boolean}} sink
  * @param {function(number, number): void} [onProgress]
+ * @param {object} [config]
+ * @param {AbortSignal} [config.signal]  Cancels the export; it then rejects with an AbortError
  * @returns {Promise<ExportResult>}
  */
-export async function exportModule(scan, options, sink, onProgress) {
+export async function exportModule(scan, options, sink, onProgress, { signal } = {}) {
   const zip = new ZipWriter(sink);
   const root = `${options.id}/`;
   const { plan, map } = planAssets(scan, options.id);
@@ -114,13 +116,15 @@ export async function exportModule(scan, options, sink, onProgress) {
   let files = 0;
   let queue = Promise.resolve();
   await runPool(jobs, CONCURRENCY, async ({ item, file }) => {
+    signal?.throwIfAborted();
     const path = file.path.toLowerCase();
     if ( !written.has(path) ) {
       written.add(path);
       let data;
       try {
-        data = await download(file.src);
+        data = await download(file.src, signal);
       } catch(err) {
+        if ( signal?.aborted ) throw err;
         failures.push({ src: file.src, error: err.message });
         item.failed = (item.failed ?? 0) + 1;
       }
@@ -135,6 +139,7 @@ export async function exportModule(scan, options, sink, onProgress) {
     }
     onProgress?.(++done, jobs.length);
   });
+  signal?.throwIfAborted();
   for ( const item of plan ) {
     if ( item.failed && !item.entry.wildcard ) map.delete(item.entry.key);
   }

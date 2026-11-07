@@ -7,7 +7,7 @@
   "download": "https://github.com/nschoenwald/niks-adv-to-mod/releases/latest/download/module.zip",
   "bugs": "https://github.com/nschoenwald/niks-adv-to-mod/issues",
   "changelog": "https://github.com/nschoenwald/niks-adv-to-mod/blob/main/CHANGELOG.md",
-  "version": "14.0.0",
+  "version": "14.1.0",
   "compatibility": {
     "minimum": "14",
     "verified": "14",
