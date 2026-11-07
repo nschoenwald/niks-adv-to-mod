@@ -1,0 +1,40 @@
+<section class="tab {{tab.cssClass}}" data-group="sheet" data-tab="assets">
+  {{#unless checked}}
+  <p class="natm-checking">{{#if busy}}<i class="fa-solid fa-spinner fa-spin" inert></i> {{/if}}<span class="natm-status-text">{{status}}</span></p>
+  {{/unless}}
+  {{#if scanned}}
+  {{#if empty}}<p class="hint">{{localize "NATM.Assets.None"}}</p>{{/if}}
+  {{#each groups as |group|}}
+  <fieldset class="natm-group" data-kind="{{group.kind}}">
+    <legend><i class="{{group.icon}}" inert></i> {{localize group.label}} <span class="natm-count">({{group.count}}{{#if group.size}}, {{group.size}}{{/if}})</span></legend>
+    <p class="hint">{{localize group.hint}}</p>
+    {{#if group.copyable}}
+    <div class="natm-group-actions">
+      <button type="button" data-action="toggleGroup" data-kind="{{group.kind}}" data-value="true">
+        <i class="fa-solid fa-square-check" inert></i> {{localize "NATM.Assets.CopyAll"}}
+      </button>
+      <button type="button" data-action="toggleGroup" data-kind="{{group.kind}}" data-value="false">
+        <i class="fa-regular fa-square" inert></i> {{localize "NATM.Assets.CopyNone"}}
+      </button>
+    </div>
+    {{/if}}
+    <ul class="natm-assets">
+      {{#each group.rows as |row|}}
+      <li class="natm-asset natm-status-{{row.status}}">
+        {{#if group.copyable}}
+        <input type="checkbox" name="include.{{row.index}}" {{checked row.include}} {{disabled row.disabled}}
+               aria-label="{{localize "NATM.Assets.Copy"}}" data-tooltip="NATM.Assets.Copy">
+        {{/if}}
+        <i class="natm-status {{row.statusIcon}}" data-tooltip="{{localize row.statusLabel}}" aria-label="{{localize row.statusLabel}}"></i>
+        <span class="natm-path" title="{{row.key}}"><bdi>{{row.key}}</bdi></span>
+        {{#if row.module}}<span class="natm-tag">{{row.module}}</span>{{/if}}
+        {{#if row.note}}<span class="natm-tag">{{row.note}}</span>{{/if}}
+        <span class="natm-size">{{row.size}}</span>
+        <span class="natm-uses" data-tooltip-html="{{row.tooltip}}">{{row.uses}}</span>
+      </li>
+      {{/each}}
+    </ul>
+  </fieldset>
+  {{/each}}
+  {{/if}}
+</section>

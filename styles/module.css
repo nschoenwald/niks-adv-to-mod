@@ -1,0 +1,177 @@
+/* Nik's Adventure to Module: export window */
+
+.niks-adv-to-mod {
+  --natm-ok: var(--color-level-success, #2e7d32);
+  --natm-missing: var(--color-level-error, #b71c1c);
+  --natm-unchecked: var(--color-level-warning, #b26a00);
+  --natm-tag-bg: rgba(127, 127, 127, 0.18);
+  --natm-row-border: rgba(127, 127, 127, 0.25);
+}
+
+.niks-adv-to-mod .window-content {
+  overflow: hidden;
+}
+
+.niks-adv-to-mod nav.tabs,
+.niks-adv-to-mod .natm-header {
+  flex: none;
+}
+
+.niks-adv-to-mod .tab.scrollable {
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.niks-adv-to-mod .tab.active {
+  flex: 1;
+}
+
+/* Header */
+.niks-adv-to-mod .natm-header {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.niks-adv-to-mod .natm-cover {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border: none;
+  border-radius: 4px;
+  flex: none;
+}
+
+.niks-adv-to-mod .natm-heading h2 {
+  margin: 0;
+  border: none;
+}
+
+.niks-adv-to-mod .natm-heading p {
+  margin: 0.15rem 0 0;
+}
+
+.niks-adv-to-mod .natm-intro,
+.niks-adv-to-mod .natm-license {
+  margin: 0;
+}
+
+/* Asset report */
+.niks-adv-to-mod .natm-group legend .natm-count {
+  font-weight: normal;
+  opacity: 0.75;
+}
+
+.niks-adv-to-mod .natm-group > .hint {
+  margin: 0 0 0.25rem;
+}
+
+.niks-adv-to-mod .natm-group-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.niks-adv-to-mod .natm-group-actions button {
+  flex: none;
+  width: auto;
+  height: auto;
+  padding: 0.15rem 0.5rem;
+  font-size: var(--font-size-12, 12px);
+}
+
+.niks-adv-to-mod .natm-assets,
+.niks-adv-to-mod .natm-issues,
+.niks-adv-to-mod .natm-failures {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.niks-adv-to-mod .natm-asset {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.15rem 0;
+  border-bottom: 1px solid var(--natm-row-border);
+  font-size: var(--font-size-12, 12px);
+}
+
+.niks-adv-to-mod .natm-asset:last-child {
+  border-bottom: none;
+}
+
+.niks-adv-to-mod .natm-asset input[type="checkbox"] {
+  flex: none;
+  margin: 0;
+}
+
+.niks-adv-to-mod .natm-path {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  direction: rtl; /* Cut the start of long paths, so the file name stays visible */
+  text-align: left;
+}
+
+.niks-adv-to-mod .natm-path > bdi {
+  direction: ltr;
+}
+
+.niks-adv-to-mod .natm-tag {
+  flex: none;
+  padding: 0 0.35rem;
+  border-radius: 3px;
+  background: var(--natm-tag-bg);
+  white-space: nowrap;
+}
+
+.niks-adv-to-mod .natm-size,
+.niks-adv-to-mod .natm-uses {
+  flex: none;
+  opacity: 0.75;
+  white-space: nowrap;
+}
+
+.niks-adv-to-mod .natm-uses {
+  cursor: help;
+}
+
+.niks-adv-to-mod .natm-status {
+  flex: none;
+  width: 1rem;
+  text-align: center;
+}
+
+.niks-adv-to-mod .natm-status-ok .natm-status { color: var(--natm-ok); }
+.niks-adv-to-mod .natm-status-missing .natm-status { color: var(--natm-missing); }
+.niks-adv-to-mod .natm-status-unchecked .natm-status { color: var(--natm-unchecked); }
+.niks-adv-to-mod .natm-status-missing .natm-path { text-decoration: line-through; opacity: 0.7; }
+
+/* Links */
+.niks-adv-to-mod .tab[data-tab="links"] h4 {
+  margin: 0.5rem 0 0;
+  font-size: var(--font-size-14, 14px);
+  font-variant: normal;
+  border: none;
+}
+
+.niks-adv-to-mod .natm-issues li,
+.niks-adv-to-mod .natm-failures li {
+  padding: 0.15rem 0;
+  border-bottom: 1px solid var(--natm-row-border);
+  font-size: var(--font-size-12, 12px);
+  overflow-wrap: anywhere;
+}
+
+.niks-adv-to-mod .natm-issues .hint {
+  display: block;
+}
+
+/* Result dialog */
+.niks-adv-to-mod .natm-failures {
+  max-height: 240px;
+  overflow-y: auto;
+}

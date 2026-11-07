@@ -1,0 +1,42 @@
+<section class="tab {{tab.cssClass}}" data-group="sheet" data-tab="links">
+  {{#if scanned}}
+  <fieldset>
+    <legend>{{localize "NATM.Dependencies.Label"}}</legend>
+    <p class="hint">{{localize "NATM.Dependencies.Hint"}}</p>
+    {{#if dependencies.length}}
+    {{#each dependencies as |dep|}}
+    <div class="form-group">
+      <label>{{dep.title}}{{#unless dep.installed}} <i class="fa-solid fa-circle-exclamation" data-tooltip="NATM.Dependencies.NotInstalled"></i>{{/unless}}</label>
+      <div class="form-fields">
+        <select name="level.{{dep.id}}">
+          {{selectOptions @root.levelChoices selected=dep.level localize=true}}
+        </select>
+      </div>
+      <p class="hint"><code>{{dep.id}}</code> · {{dep.reasons}}</p>
+    </div>
+    {{/each}}
+    {{else}}
+    <p class="hint">{{localize "NATM.Dependencies.None"}}</p>
+    {{/if}}
+  </fieldset>
+
+  <fieldset>
+    <legend>{{localize "NATM.Issues.Label"}}</legend>
+    {{#unless issueGroups.length}}<p class="hint">{{localize "NATM.Issues.None"}}</p>{{/unless}}
+    {{#each issueGroups as |group|}}
+    <h4><i class="fa-solid fa-link-slash" inert></i> {{localize group.label}} ({{group.items.length}})</h4>
+    <p class="hint">{{localize group.hint}}</p>
+    <ul class="natm-issues">
+      {{#each group.items as |item|}}
+      <li>
+        <code>{{item.uuid}}</code>{{#if item.name}} <strong>{{item.name}}</strong>{{/if}}
+        <span class="hint">{{item.docs}}</span>
+      </li>
+      {{/each}}
+    </ul>
+    {{/each}}
+  </fieldset>
+  {{else}}
+  <p class="natm-checking">{{#if busy}}<i class="fa-solid fa-spinner fa-spin" inert></i> {{/if}}<span class="natm-status-text">{{status}}</span></p>
+  {{/if}}
+</section>

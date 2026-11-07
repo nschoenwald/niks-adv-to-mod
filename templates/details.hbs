@@ -1,0 +1,33 @@
+<section class="tab {{tab.cssClass}}" data-group="sheet" data-tab="details">
+  <p class="hint natm-intro">{{localize "NATM.Details.Intro"}}</p>
+  <div class="form-group">
+    <label>{{localize "NATM.Details.Id.Label"}}</label>
+    <div class="form-fields">
+      <input type="text" name="id" value="{{values.id}}" required pattern="[a-z0-9][a-z0-9_\-]*">
+    </div>
+    <p class="hint">{{localize "NATM.Details.Id.Hint"}}</p>
+  </div>
+  <div class="form-group">
+    <label>{{localize "NATM.Details.Title.Label"}}</label>
+    <div class="form-fields"><input type="text" name="title" value="{{values.title}}" required></div>
+    <p class="hint">{{localize "NATM.Details.Title.Hint"}}</p>
+  </div>
+  <div class="form-group">
+    <label>{{localize "NATM.Details.Version.Label"}}</label>
+    <div class="form-fields"><input type="text" name="version" value="{{values.version}}" required></div>
+  </div>
+  <div class="form-group">
+    <label>{{localize "NATM.Details.Author.Label"}}</label>
+    <div class="form-fields"><input type="text" name="author" value="{{values.author}}"></div>
+  </div>
+  <div class="form-group">
+    <label>{{localize "NATM.Details.Url.Label"}}</label>
+    <div class="form-fields"><input type="url" name="url" value="{{values.url}}" placeholder="https://"></div>
+    <p class="hint">{{localize "NATM.Details.Url.Hint"}}</p>
+  </div>
+  <div class="form-group stacked">
+    <label>{{localize "NATM.Details.Description.Label"}}</label>
+    <textarea name="description" rows="4">{{values.description}}</textarea>
+  </div>
+  <p class="hint natm-license"><i class="fa-solid fa-scale-balanced" inert></i> {{localize "NATM.Details.License"}}</p>
+</section>

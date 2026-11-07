@@ -1,0 +1,151 @@
+{
+  "NATM": {
+    "ContextMenu": "Export as Module",
+    "App": {
+      "Title": "Adventure to Module",
+      "TitleFor": "Export as Module: {name}",
+      "Export": "Export ZIP",
+      "Loading": "Loading the adventure…",
+      "Scanning": "Scanning documents: {done} of {total}",
+      "Summary": "{assets} files used, {copied} will be copied ({size}). {issues} broken links."
+    },
+    "Tabs": {
+      "details": "Module",
+      "assets": "Files",
+      "links": "Dependencies & Links"
+    },
+    "Details": {
+      "Intro": "The adventure and the files it uses are packed into a module ZIP. Other GMs install it like any module and import the adventure from its compendium.",
+      "Id": {
+        "Label": "Module ID",
+        "Hint": "Lowercase letters, numbers, hyphens and underscores. It becomes the folder name and must be unique on the servers it is installed on."
+      },
+      "Title": {
+        "Label": "Title",
+        "Hint": "Shown in the module list. The compendium gets the same name."
+      },
+      "Version": {
+        "Label": "Version"
+      },
+      "Author": {
+        "Label": "Author"
+      },
+      "Url": {
+        "Label": "Project URL",
+        "Hint": "Optional. A website or repository for the module."
+      },
+      "Description": {
+        "Label": "Description"
+      },
+      "License": "Only share files you are allowed to share. Maps, tokens and art from other modules or purchased packs usually may not be redistributed: leave them out and list the module as a dependency instead."
+    },
+    "Assets": {
+      "Checking": "Checking files: {done} of {total}",
+      "None": "This adventure uses no files.",
+      "CopyAll": "Copy all",
+      "CopyNone": "Copy none",
+      "Copy": "Copy into the module",
+      "Uses": "{count}×",
+      "More": "and {count} more",
+      "WildcardFiles": "Wildcard: {count} files",
+      "WildcardUnknown": "Wildcard: not searchable"
+    },
+    "Kinds": {
+      "world": {
+        "Label": "World files",
+        "Hint": "Files in this world's folder. Copied into the module."
+      },
+      "data": {
+        "Label": "User data files",
+        "Hint": "Files in your user data folder. Copied into the module."
+      },
+      "storage": {
+        "Label": "Cloud storage",
+        "Hint": "Files on your S3 or Forge storage. Copied into the module, if the storage allows the download."
+      },
+      "module": {
+        "Label": "Files from other modules",
+        "Hint": "Not copied by default: these modules become dependencies. Only copy files you are allowed to share."
+      },
+      "external": {
+        "Label": "Web links",
+        "Hint": "Files on other websites. Kept as links by default. Copying works only if the website allows it."
+      },
+      "core": {
+        "Label": "Foundry files",
+        "Hint": "Part of Foundry VTT. Every server has them."
+      },
+      "system": {
+        "Label": "Game system files",
+        "Hint": "Part of the game system, which the module requires."
+      }
+    },
+    "Status": {
+      "pending": "Checking…",
+      "ok": "Found",
+      "missing": "Not found: the path stays unchanged",
+      "unchecked": "Could not be checked"
+    },
+    "Dependencies": {
+      "Label": "Module dependencies",
+      "Hint": "Modules the adventure takes files or compendium content from are required by default. Modules that only stored data on its documents are recommended.",
+      "None": "The adventure needs no other modules.",
+      "NotInstalled": "Not active in this world",
+      "Reasons": {
+        "assets": "files",
+        "compendium": "compendium links",
+        "flags": "module data"
+      },
+      "Levels": {
+        "requires": "Required",
+        "recommends": "Recommended",
+        "none": "Not listed"
+      }
+    },
+    "Issues": {
+      "Label": "Links that will break",
+      "None": "No broken links found.",
+      "missingDocument": {
+        "Label": "Documents not in the adventure",
+        "Hint": "Links, tokens or notes point to world documents that are not part of the adventure. Add them to the adventure to keep the links working."
+      },
+      "worldPack": {
+        "Label": "World compendiums",
+        "Hint": "Links into compendiums of this world. Other GMs don't have them."
+      },
+      "sourcePack": {
+        "Label": "The adventure's own compendium",
+        "Hint": "Links into the compendium the adventure is stored in. The new module has its own compendium, so these links break."
+      },
+      "unknownPack": {
+        "Label": "Unknown compendiums",
+        "Hint": "Links into compendiums that are not available in this world."
+      }
+    },
+    "Export": {
+      "Started": "Packing the adventure…",
+      "Progress": "Packing files: {done} of {total}",
+      "Finished": "Adventure packed."
+    },
+    "Result": {
+      "Title": "Module exported",
+      "Done": "<strong>{id}</strong> was saved with {files} files ({size}).",
+      "Downloaded": "Your browser saves the ZIP to its downloads folder.",
+      "Failures": "{count} files could not be downloaded. Their paths were left unchanged:",
+      "Install": "To install it, extract the ZIP into the modules folder of a Foundry user data folder, enable the module, and import the adventure from its compendium. The README in the ZIP says the same for the GMs you share it with.",
+      "Ok": "OK"
+    },
+    "Errors": {
+      "GMOnly": "Only a GM can export adventures.",
+      "NoAdventure": "No adventure found.",
+      "InvalidId": "The module ID may only contain lowercase letters, numbers, hyphens and underscores, and must start with a letter or number.",
+      "NoTitle": "Enter a title.",
+      "NoVersion": "Enter a version.",
+      "ReservedId": "This module ID is already used by the game system or by Adventure to Module.",
+      "LoadFailed": "The adventure could not be loaded: {error}"
+    },
+    "Warnings": {
+      "IdInstalled": "A module with the ID \"{id}\" is installed here. Installing the ZIP on this server replaces it."
+    }
+  }
+}

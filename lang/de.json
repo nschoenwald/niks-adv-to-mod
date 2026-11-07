@@ -1,0 +1,151 @@
+{
+  "NATM": {
+    "ContextMenu": "Als Modul exportieren",
+    "App": {
+      "Title": "Abenteuer zu Modul",
+      "TitleFor": "Als Modul exportieren: {name}",
+      "Export": "ZIP exportieren",
+      "Loading": "Abenteuer wird geladen…",
+      "Scanning": "Dokumente werden durchsucht: {done} von {total}",
+      "Summary": "{assets} Dateien verwendet, {copied} werden kopiert ({size}). {issues} defekte Verknüpfungen."
+    },
+    "Tabs": {
+      "details": "Modul",
+      "assets": "Dateien",
+      "links": "Abhängigkeiten & Verknüpfungen"
+    },
+    "Details": {
+      "Intro": "Das Abenteuer und die Dateien, die es verwendet, werden in ein Modul-ZIP gepackt. Andere SL installieren es wie jedes Modul und importieren das Abenteuer aus seinem Kompendium.",
+      "Id": {
+        "Label": "Modul-ID",
+        "Hint": "Kleinbuchstaben, Ziffern, Bindestriche und Unterstriche. Sie wird zum Ordnernamen und muss auf den Servern, auf denen das Modul installiert wird, eindeutig sein."
+      },
+      "Title": {
+        "Label": "Titel",
+        "Hint": "Wird in der Modulliste angezeigt. Das Kompendium bekommt denselben Namen."
+      },
+      "Version": {
+        "Label": "Version"
+      },
+      "Author": {
+        "Label": "Autor"
+      },
+      "Url": {
+        "Label": "Projekt-URL",
+        "Hint": "Optional. Eine Website oder ein Repository für das Modul."
+      },
+      "Description": {
+        "Label": "Beschreibung"
+      },
+      "License": "Gib nur Dateien weiter, die du weitergeben darfst. Karten, Token und Bilder aus anderen Modulen oder gekauften Paketen dürfen meist nicht weiterverbreitet werden: Lass sie weg und trag das Modul stattdessen als Abhängigkeit ein."
+    },
+    "Assets": {
+      "Checking": "Dateien werden geprüft: {done} von {total}",
+      "None": "Dieses Abenteuer verwendet keine Dateien.",
+      "CopyAll": "Alle kopieren",
+      "CopyNone": "Keine kopieren",
+      "Copy": "Ins Modul kopieren",
+      "Uses": "{count}×",
+      "More": "und {count} weitere",
+      "WildcardFiles": "Platzhalter: {count} Dateien",
+      "WildcardUnknown": "Platzhalter: nicht durchsuchbar"
+    },
+    "Kinds": {
+      "world": {
+        "Label": "Weltdateien",
+        "Hint": "Dateien im Ordner dieser Welt. Werden ins Modul kopiert."
+      },
+      "data": {
+        "Label": "Dateien im Benutzerdatenordner",
+        "Hint": "Dateien in deinem Benutzerdatenordner. Werden ins Modul kopiert."
+      },
+      "storage": {
+        "Label": "Cloud-Speicher",
+        "Hint": "Dateien auf deinem S3- oder Forge-Speicher. Werden ins Modul kopiert, sofern der Speicher den Download erlaubt."
+      },
+      "module": {
+        "Label": "Dateien aus anderen Modulen",
+        "Hint": "Standardmäßig nicht kopiert: Diese Module werden zu Abhängigkeiten. Kopiere nur Dateien, die du weitergeben darfst."
+      },
+      "external": {
+        "Label": "Weblinks",
+        "Hint": "Dateien auf anderen Websites. Bleiben standardmäßig als Link erhalten. Kopieren klappt nur, wenn die Website es erlaubt."
+      },
+      "core": {
+        "Label": "Foundry-Dateien",
+        "Hint": "Teil von Foundry VTT. Jeder Server hat sie."
+      },
+      "system": {
+        "Label": "Dateien des Spielsystems",
+        "Hint": "Teil des Spielsystems, das das Modul voraussetzt."
+      }
+    },
+    "Status": {
+      "pending": "Wird geprüft…",
+      "ok": "Gefunden",
+      "missing": "Nicht gefunden: Der Pfad bleibt unverändert",
+      "unchecked": "Konnte nicht geprüft werden"
+    },
+    "Dependencies": {
+      "Label": "Modulabhängigkeiten",
+      "Hint": "Module, aus denen das Abenteuer Dateien oder Kompendiuminhalte verwendet, sind standardmäßig erforderlich. Module, die nur Daten an seinen Dokumenten gespeichert haben, werden empfohlen.",
+      "None": "Das Abenteuer braucht keine anderen Module.",
+      "NotInstalled": "In dieser Welt nicht aktiv",
+      "Reasons": {
+        "assets": "Dateien",
+        "compendium": "Kompendium-Verknüpfungen",
+        "flags": "Moduldaten"
+      },
+      "Levels": {
+        "requires": "Erforderlich",
+        "recommends": "Empfohlen",
+        "none": "Nicht aufgeführt"
+      }
+    },
+    "Issues": {
+      "Label": "Verknüpfungen, die nicht mehr funktionieren werden",
+      "None": "Keine defekten Verknüpfungen gefunden.",
+      "missingDocument": {
+        "Label": "Dokumente, die nicht im Abenteuer sind",
+        "Hint": "Verknüpfungen, Token oder Notizen verweisen auf Weltdokumente, die nicht Teil des Abenteuers sind. Füge sie dem Abenteuer hinzu, damit die Verknüpfungen funktionieren."
+      },
+      "worldPack": {
+        "Label": "Weltkompendien",
+        "Hint": "Verknüpfungen in Kompendien dieser Welt. Andere SL haben sie nicht."
+      },
+      "sourcePack": {
+        "Label": "Das Kompendium des Abenteuers",
+        "Hint": "Verknüpfungen in das Kompendium, in dem das Abenteuer gespeichert ist. Das neue Modul hat ein eigenes Kompendium, daher funktionieren diese Verknüpfungen nicht mehr."
+      },
+      "unknownPack": {
+        "Label": "Unbekannte Kompendien",
+        "Hint": "Verknüpfungen in Kompendien, die in dieser Welt nicht verfügbar sind."
+      }
+    },
+    "Export": {
+      "Started": "Abenteuer wird gepackt…",
+      "Progress": "Dateien werden gepackt: {done} von {total}",
+      "Finished": "Abenteuer gepackt."
+    },
+    "Result": {
+      "Title": "Modul exportiert",
+      "Done": "<strong>{id}</strong> wurde mit {files} Dateien ({size}) gespeichert.",
+      "Downloaded": "Dein Browser speichert das ZIP in seinem Download-Ordner.",
+      "Failures": "{count} Dateien konnten nicht heruntergeladen werden. Ihre Pfade wurden nicht geändert:",
+      "Install": "Zum Installieren das ZIP in den Ordner „modules“ eines Foundry-Benutzerdatenordners entpacken, das Modul aktivieren und das Abenteuer aus seinem Kompendium importieren. Die README im ZIP erklärt das auch den SL, mit denen du es teilst.",
+      "Ok": "OK"
+    },
+    "Errors": {
+      "GMOnly": "Nur SL können Abenteuer exportieren.",
+      "NoAdventure": "Kein Abenteuer gefunden.",
+      "InvalidId": "Die Modul-ID darf nur Kleinbuchstaben, Ziffern, Bindestriche und Unterstriche enthalten und muss mit einem Buchstaben oder einer Ziffer beginnen.",
+      "NoTitle": "Gib einen Titel ein.",
+      "NoVersion": "Gib eine Version ein.",
+      "ReservedId": "Diese Modul-ID wird bereits vom Spielsystem oder von Abenteuer zu Modul verwendet.",
+      "LoadFailed": "Das Abenteuer konnte nicht geladen werden: {error}"
+    },
+    "Warnings": {
+      "IdInstalled": "Hier ist ein Modul mit der ID „{id}“ installiert. Wird das ZIP auf diesem Server installiert, ersetzt es dieses Modul."
+    }
+  }
+}

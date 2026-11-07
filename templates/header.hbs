@@ -1,0 +1,12 @@
+<header class="natm-header">
+  {{#if adventure.img}}<img class="natm-cover" src="{{adventure.img}}" alt="">{{/if}}
+  <div class="natm-heading">
+    <h2>{{adventure.name}}</h2>
+    {{#if adventure.pack}}<p class="hint">{{adventure.pack}}</p>{{/if}}
+    <p class="natm-summary">
+      {{#if busy}}<i class="fa-solid fa-spinner fa-spin" inert></i>{{/if}}
+      {{#if error}}<i class="fa-solid fa-triangle-exclamation" inert></i>{{/if}}
+      <span class="natm-status-text">{{status}}</span>
+    </p>
+  </div>
+</header>

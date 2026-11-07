@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+
+# Release archives
+*.zip
+
+# Markdown: ignore all, except the docs published with the repo
+*.md
+!README.md
+!CHANGELOG.md
+
+# AI translations without human review: kept locally, never shipped
+/lang-unreviewed/

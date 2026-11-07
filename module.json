@@ -1,0 +1,43 @@
+{
+  "id": "niks-adv-to-mod",
+  "title": "Nik's Adventure to Module",
+  "description": "Turn an adventure from a compendium into a stand-alone module ZIP that you can share with other GMs. Images, maps, tokens, sounds and handouts are copied into the module, and their paths are updated.",
+  "url": "https://github.com/nschoenwald/niks-adv-to-mod",
+  "manifest": "https://github.com/nschoenwald/niks-adv-to-mod/releases/latest/download/module.json",
+  "download": "https://github.com/nschoenwald/niks-adv-to-mod/releases/latest/download/module.zip",
+  "bugs": "https://github.com/nschoenwald/niks-adv-to-mod/issues",
+  "changelog": "https://github.com/nschoenwald/niks-adv-to-mod/blob/main/CHANGELOG.md",
+  "version": "14.0.0",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14",
+    "maximum": "14"
+  },
+  "authors": [
+    {
+      "name": "nikolai.sw"
+    }
+  ],
+  "esmodules": [
+    "scripts/module.js"
+  ],
+  "styles": [
+    "styles/module.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    },
+    {
+      "lang": "de",
+      "name": "Deutsch",
+      "path": "lang/de.json"
+    }
+  ],
+  "packs": [],
+  "socket": false,
+  "protected": false,
+  "library": false
+}
